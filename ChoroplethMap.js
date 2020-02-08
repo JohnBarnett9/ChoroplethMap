@@ -24,7 +24,7 @@ var color = d3.scaleThreshold()
 .domain(d3.range(0, 100, 10)) 
 .range(d3.schemeGreens[9]);
 
-var g = svg.append("g")
+var legend = svg.append("g")
 .attr("class", "key")
 .attr("transform", "translate(0,40)");
 
@@ -32,7 +32,7 @@ var g = svg.append("g")
 function(d), d is hex color
 color.invertExtent(d);, input is hex color, output is corresponding array of domain values
 */
-g
+legend
 .selectAll("rect")
 .data(color.range().map(function(d) {
 	d = color.invertExtent(d);
@@ -56,6 +56,14 @@ g
 .attr("fill", function(d) {
 	return color(d[0]);
 });
+
+legend
+.append("text")
+.attr("x", "600px")
+.attr("y", -5)
+//.style("text-align", "left ")
+.text("Percentage of adults age 25 and older with a bachelor's degree or higher (2010-2014).")
+.attr("font-size", "10px");
 
 var promises = [
 	//d3.json("countiesSmall.json")
