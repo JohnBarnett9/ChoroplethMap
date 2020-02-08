@@ -16,7 +16,8 @@ Min percent is 2.6.
 Max percent is 75.1.
 */
 var x = d3.scaleLinear()
-.domain([2.6, 75.1])
+//.domain([2.6, 75.1])
+.domain([0,80])
 .rangeRound([600, 860]);
 
 /*
@@ -27,9 +28,18 @@ var color = d3.scaleThreshold()
 .domain(d3.range(0, 100, 10)) 
 .range(d3.schemeGreens[9]);
 
+/* legend is color percent description */
 var legend = svg.append("g")
-.attr("class", "key")
-.attr("transform", "translate(0,40)");
+.attr("transform", "translate(230, 400)");
+
+
+//legend
+svg
+.append("text")
+//.text("Percentage of adults age 25 and older with a bachelor's degree or higher (2010-2014)")
+.text("% adults age >= 25 with bachelor's degree or higher (2010-2014)")
+.attr("font-size", "10px")
+.attr("transform", "translate(830, 390)");
 
 /*
 function(d), d is hex color
@@ -49,7 +59,7 @@ legend
 }))
 .enter()
 .append("rect")
-.attr("height", 8)
+.attr("height", 20)
 .attr("x", function(d) {
 	return x(d[0]);
 })
@@ -60,19 +70,40 @@ legend
 	return color(d[0]);
 });
 
+
+
+console.dir(color.domain());
+
+/*
+legend ticks
+tickSize is length of tick mark
+tickFormat(x, i), x is value, i is index
+*/
+var legendTicks = d3.axisBottom(x)
+.tickSize(20)
+.tickValues([0,10,20,30,40,50,60,70,80])
+.tickFormat(function(x, i){
+	console.dir("x=");
+	console.dir(x);
+	console.dir("i=");
+	console.dir(i);
+	return x + "%";
+})
+;
+
+
 legend
-.append("text")
-.attr("x", "600px")
-.attr("y", -5)
-//.style("text-align", "left ")
-.text("Percentage of adults age 25 and older with a bachelor's degree or higher (2010-2014).")
-.attr("font-size", "10px");
+.call(legendTicks);
+//.append(legendTicks);
+
+//legend.attr("transform", "translate(230, 400)");
 
 //Title of Map
 svg
 .append("text")
 .attr("x", 400)
 .attr("y", 40)
+.style("font-size", "20px")
 .text("United States Educational Attainment");
 
 
