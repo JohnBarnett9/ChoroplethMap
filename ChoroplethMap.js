@@ -74,15 +74,60 @@ function main(data){
 		countyIdToPercent.set(element.fips, element.bachelorsOrHigher);
 	});
 
-
+	//counties
+	/**/
 	svg.append("g")
 	.selectAll("path")
 	.data(topojson.feature(dataset, dataset.objects.counties).features) //works
 	.enter()
 	.append("path")
+	//.style("stroke", "#fff")
+	//.style("stroke-width", "1")
 	.attr("fill", function(d){
 		var temp = countyIdToPercent.get(d.id);
 		return color(temp);
 	})
 	.attr("d", path);
+	
+
+	//states
+	/*
+	svg.append("g")
+	.selectAll("path")
+	.data(topojson.feature(dataset, dataset.objects.states).features)
+	.enter()
+	.append("path")
+	.attr("d", path);
+	*/
+	/*outline around states
+	svg
+	.append("path")
+	.datum(topojson.mesh(dataset, dataset.objects.states, function(a, b) { return a !== b; }))
+	.attr("fill", "none")
+	.attr("stroke", "white")
+	.attr("d", path);
+	*/
+	/*outline around states*/
+	svg
+	.append("path")
+	.datum(topojson.mesh(dataset, dataset.objects.states, function(a, b) { return a !== b; }))
+	.attr("fill", "none")
+	.attr("stroke", "white")
+	.attr("stroke-linejoin", "round")
+	.attr("d", path);
+
+	/* every state is outlined and black
+	svg.append("g")
+	.selectAll("path")
+	.data(topojson.feature(dataset, dataset.objects.states).features)
+	.enter()
+	.append("path")
+	.style("stroke", "#fff")
+	.style("stroke-width", "1")
+	.attr("fill", function(d){
+		var temp = countyIdToPercent.get(d.id);
+		return color(temp);
+	})
+	.attr("d", path);
+	*/
 };
