@@ -68,6 +68,14 @@ legend
 .text("Percentage of adults age 25 and older with a bachelor's degree or higher (2010-2014).")
 .attr("font-size", "10px");
 
+//Title of Map
+svg
+.append("text")
+.attr("x", 400)
+.attr("y", 40)
+.text("United States Educational Attainment");
+
+
 var promises = [
 	//d3.json("countiesSmall.json")
 	d3.json("counties.json")
