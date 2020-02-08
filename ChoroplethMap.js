@@ -12,30 +12,50 @@ var path = d3.geoPath();
 
 //Color Legend
 var x = d3.scaleLinear()
-    //.domain([1, 10])
-    .domain([2.6, 75.1])
-    .rangeRound([600, 860]);
+//.domain([1, 10])
+.domain([2.6, 75.1])
+.rangeRound([600, 860]);
 
+/*
+d3.range() generates array from 0 to 100 every step is 10
+.domain(d3.range(0, 100, 10)) 
+*/
 var color = d3.scaleThreshold()
 .domain(d3.range(0, 100, 10)) 
 .range(d3.schemeGreens[9]);
 
 var g = svg.append("g")
-    .attr("class", "key")
-    .attr("transform", "translate(0,40)");
+.attr("class", "key")
+.attr("transform", "translate(0,40)");
 
-g.selectAll("rect")
-  .data(color.range().map(function(d) {
-      d = color.invertExtent(d);
-      if (d[0] == null) d[0] = x.domain()[0];
-      if (d[1] == null) d[1] = x.domain()[1];
-      return d;
-    }))
-  .enter().append("rect")
-    .attr("height", 8)
-    .attr("x", function(d) { return x(d[0]); })
-    .attr("width", function(d) { return x(d[1]) - x(d[0]); })
-    .attr("fill", function(d) { return color(d[0]); });
+/*
+function(d), d is hex color
+color.invertExtent(d);, input is hex color, output is corresponding array of domain values
+*/
+g
+.selectAll("rect")
+.data(color.range().map(function(d) {
+	d = color.invertExtent(d);
+	if (d[0] == null){
+		d[0] = x.domain()[0];
+	}
+	if (d[1] == null){
+		d[1] = x.domain()[1];
+	}
+	return d;
+}))
+.enter()
+.append("rect")
+.attr("height", 8)
+.attr("x", function(d) {
+	return x(d[0]);
+})
+.attr("width", function(d) {
+	return x(d[1]) - x(d[0]);
+})
+.attr("fill", function(d) {
+	return color(d[0]);
+});
 
 var promises = [
 	//d3.json("countiesSmall.json")
@@ -53,36 +73,6 @@ function main(data){
 	dataset2.map((element) => {
 		countyIdToPercent.set(element.fips, element.bachelorsOrHigher);
 	});
-
-	/*
-	console.log("asdf");
-	var lowestPercent = 100;
-	var highestPercent = 0;
-	//lowest percent
-	for(let [key, value] of countyIdToPercent.entries()){
-		if (value < lowestPercent) {
-			lowestPercent = value;
-		}
-		if (value > highestPercent) {
-			highestPercent = value;
-		}
-		console.dir(key, value);
-	}
-	*/
-	/*
-	console.log("lowestPercent=");
-	console.dir(lowestPercent); //2.6
-	console.log("highestPercent=");
-	console.dir(highestPercent); //75.1
-	*/
-
-	/*
-	console.log("countyIdToPercent=");
-	console.dir(countyIdToPercent);
-	for (let [key, value] of countyIdToPercent.entries()) {
-	  console.log(key + ' = ' + value)
-	}
-	*/
 
 
 	svg.append("g")
