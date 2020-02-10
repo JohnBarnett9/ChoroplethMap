@@ -7,6 +7,17 @@
 		<script src="../d3.min.js"></script>
 		<script src="../topojson.min.js"></script>
 		<link rel="stylesheet" type="text/css" href="CustomCSS.css">
+		<style>
+			#myTooltip {
+				position: absolute; /*without this, tooltip is below graph*/
+				background-color: white;
+				width: 200px;
+				height: 30px;
+				padding: 3px; /*space between text and border of tooltip*/
+				border-radius: 3px; /*slightly curved corners*/
+				border: 1px solid black;
+			}
+		</style>
 	</head>
 	<body>
 		<div id="root">

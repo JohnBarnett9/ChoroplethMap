@@ -70,10 +70,6 @@ legend
 	return color(d[0]);
 });
 
-
-
-console.dir(color.domain());
-
 /*
 legend ticks
 tickSize is length of tick mark
@@ -83,10 +79,6 @@ var legendTicks = d3.axisBottom(x)
 .tickSize(20)
 .tickValues([0,10,20,30,40,50,60,70,80])
 .tickFormat(function(x, i){
-	console.dir("x=");
-	console.dir(x);
-	console.dir("i=");
-	console.dir(i);
 	return x + "%";
 })
 ;
@@ -94,9 +86,6 @@ var legendTicks = d3.axisBottom(x)
 
 legend
 .call(legendTicks);
-//.append(legendTicks);
-
-//legend.attr("transform", "translate(230, 400)");
 
 //Title of Map
 svg
@@ -119,16 +108,34 @@ function main(data){
 	var dataset = data[0];
 	var dataset2 = data[1];
 
-	var countyIdToPercent = new Map;
+	//construct Map of key value pairs
+	//id of county and %
+	var countyIdToCountyInfo = new Map;
 	dataset2.map((element) => {
-		countyIdToPercent.set(element.fips, element.bachelorsOrHigher);
+		/*
+		countyIdToCountyInfo.set(element.fips, {
+				"state" : element.state, 
+				"area_name" : element.area_name, 
+				"percent" : element.bachelorsOrHigher
+			});
+		*/
+		countyIdToCountyInfo.set(element.fips,element);
+
 	});
+	console.dir(countyIdToCountyInfo.get(1001));
+	/*
+	for (let [key, value] of countyIdToCountyInfo.entries()) {
+		console.log(key + ' = ');
+		console.dir(value);
+	}
+	*/
 
 	/*
 	counties
 	style stroke is white outline around each county
 	style stroke-width makes white outline be thin
 	*/
+	/**/
 	svg.append("g")
 	.selectAll("path")
 	.data(topojson.feature(dataset, dataset.objects.counties).features) //works
@@ -137,13 +144,33 @@ function main(data){
 	.style("stroke", "#fff")
 	.style("stroke-width", ".1")
 	.attr("fill", function(d){
-		var temp = countyIdToPercent.get(d.id);
-		return color(temp);
+		//go from id to %
+		var percentOfAdults = countyIdToCountyInfo.get(d.id).bachelorsOrHigher;
+		return color(percentOfAdults);
 	})
-	.attr("d", path);
+	.attr("d", path)
+	.on("mouseover", function(d){
+		var tooltipDiv = d3.select("#myTooltip");
+		tooltipDiv.transition()
+		.duration(100)
+		.style("opacity", .8);
+
+		//go from id to County Name, State, %
+		//console.dir(d);
+		var countyInfo = countyIdToCountyInfo.get(d.id);
+		var tooltipData = 
+		countyInfo.area_name + ", " + countyInfo.state
+		+ " " + countyInfo.bachelorsOrHigher + "%";
+
+		tooltipDiv.html(tooltipData)
+		.style("left", d3.event.pageX + "px")
+		.style("top", d3.event.pageY + "px");
+	});
+	
 	
 
 	/*outline around states*/
+	/**/
 	svg
 	.append("path")
 	.datum(topojson.mesh(dataset, dataset.objects.states, function(a, b) { return a !== b; }))
@@ -153,3 +180,9 @@ function main(data){
 	.attr("d", path);
 
 };
+
+//tooltip
+var tooltipDiv = d3.select("body")
+.append("div")
+.attr("id", "myTooltip")
+.style("opacity", 1);
