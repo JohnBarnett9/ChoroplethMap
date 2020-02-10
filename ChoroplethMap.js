@@ -1,6 +1,12 @@
+/*
+This file is the D3.js code to generate the USA Choropleth Map.
+*/
+
+//Dimensions of Map.
 var width = 1200;
 var height = 700;
 
+//Render the SVG drawing area.
 var svg =
 d3.select("#root")
 .append("svg")
@@ -8,6 +14,7 @@ d3.select("#root")
 .attr("height", height)
 .attr("style", "background-color: lightblue;");
 
+//Creates a new geographic path generator with the default settings.
 var path = d3.geoPath();
 
 /*
@@ -16,9 +23,11 @@ Min percent is 2.6.
 Max percent is 75.1.
 */
 var x = d3.scaleLinear()
-//.domain([2.6, 75.1])
 .domain([0,80])
 .rangeRound([600, 860]);
+
+//The color legend goes from black to gold.
+var goldBlack = ["#e4cd81", "#dbbc57", "#d4af37", "#bd9b28", "#93781f", "#695616", "#3f340d", "#151104", "#000000"];
 
 /*
 d3.range() generates array from 0 to 100 every step is 10
@@ -26,8 +35,7 @@ d3.range() generates array from 0 to 100 every step is 10
 */
 var color = d3.scaleThreshold()
 .domain(d3.range(0, 100, 10)) 
-.range(d3.schemeGreens[9]);
-console.dir(d3.schemeGreens[9]);
+.range(goldBlack.reverse());
 
 /* legend is color percent description */
 var legend = svg.append("g")
@@ -37,7 +45,6 @@ var legend = svg.append("g")
 //legend
 svg
 .append("text")
-//.text("Percentage of adults age 25 and older with a bachelor's degree or higher (2010-2014)")
 .text("% adults age >= 25 with bachelor's degree or higher (2010-2014)")
 .attr("font-size", "10px")
 .attr("transform", "translate(830, 390)");
@@ -71,7 +78,6 @@ legend
 	return color(d[0]);
 })
 .on("mouseover", function(d){
-	console.dir(d);
 	//get color hex
 	var currColor = color(d[0]);
 
@@ -80,9 +86,9 @@ legend
 	dimmedOut.forEach((element) => {
 		element.setAttribute("opacity", .4);
 	});
-
 })
 .on("mouseout", function(d){
+	//get color hex
 	var currColor = color(d[0]);
 	var dimmedOut = document.querySelectorAll("#root path:not([fill="+CSS.escape(currColor)+"])");
 	dimmedOut.forEach((element) => {
@@ -100,8 +106,7 @@ var legendTicks = d3.axisBottom(x)
 .tickValues([0,10,20,30,40,50,60,70,80])
 .tickFormat(function(x, i){
 	return x + "%";
-})
-;
+});
 
 
 legend
@@ -115,13 +120,13 @@ svg
 .style("font-size", "20px")
 .text("United States Educational Attainment");
 
-
 var promises = [
-	//d3.json("countiesSmall.json")
-	d3.json("counties.json")
-	,d3.json("for_user_education.json")
+	d3.json("counties.json"),
+	d3.json("for_user_education.json")
 ];
 
+//When all Promises are resolved, call main().
+//Results of Promises are in main() parameter.
 Promise.all(promises).then(main);
 
 function main(data){	
@@ -132,30 +137,14 @@ function main(data){
 	//id of county and %
 	var countyIdToCountyInfo = new Map;
 	dataset2.map((element) => {
-		/*
-		countyIdToCountyInfo.set(element.fips, {
-				"state" : element.state, 
-				"area_name" : element.area_name, 
-				"percent" : element.bachelorsOrHigher
-			});
-		*/
 		countyIdToCountyInfo.set(element.fips,element);
-
 	});
-	//console.dir(countyIdToCountyInfo.get(1001));
-	/*
-	for (let [key, value] of countyIdToCountyInfo.entries()) {
-		console.log(key + ' = ');
-		console.dir(value);
-	}
-	*/
 
 	/*
 	counties
 	style stroke is white outline around each county
 	style stroke-width makes white outline be thin
 	*/
-	/**/
 	svg.append("g")
 	.selectAll("path")
 	.data(topojson.feature(dataset, dataset.objects.counties).features) //works
@@ -172,7 +161,7 @@ function main(data){
 	.on("mouseover", function(d){
 		var tooltipDiv = d3.select("#myTooltip");
 		tooltipDiv.transition()
-		.duration(100)
+		.duration(250)
 		.style("opacity", .8);
 
 		//go from id to County Name, State, %
@@ -182,20 +171,19 @@ function main(data){
 		countyInfo.area_name + ", " + countyInfo.state
 		+ " " + countyInfo.bachelorsOrHigher + "%";
 
+		//tooltip appears above cursor
 		tooltipDiv.html(tooltipData)
 		.style("left", d3.event.pageX + "px")
-		.style("top", d3.event.pageY + "px");
+		.style("top", d3.event.pageY - 50 + "px");
 	})
 	.on("mouseout", function(){
-		var tooltipDiv = 
 		d3.select("#myTooltip")
+		.transition()
+		.duration(250)
 		.style("opacity", "0");
 	});
-	
-	
 
 	/*outline around states*/
-	/**/
 	svg
 	.append("path")
 	.datum(topojson.mesh(dataset, dataset.objects.states, function(a, b) { return a !== b; }))
@@ -203,11 +191,10 @@ function main(data){
 	.attr("stroke", "white")
 	.attr("stroke-linejoin", "round")
 	.attr("d", path);
-
 };
 
 //tooltip
 var tooltipDiv = d3.select("body")
 .append("div")
 .attr("id", "myTooltip")
-.style("opacity", 1);
+.style("opacity", 0);
