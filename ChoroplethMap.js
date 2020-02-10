@@ -27,6 +27,7 @@ d3.range() generates array from 0 to 100 every step is 10
 var color = d3.scaleThreshold()
 .domain(d3.range(0, 100, 10)) 
 .range(d3.schemeGreens[9]);
+console.dir(d3.schemeGreens[9]);
 
 /* legend is color percent description */
 var legend = svg.append("g")
@@ -68,6 +69,25 @@ legend
 })
 .attr("fill", function(d) {
 	return color(d[0]);
+})
+.on("mouseover", function(d){
+	console.dir(d);
+	//get color hex
+	var currColor = color(d[0]);
+
+	//dim out all paths (counties) that are not the mouseover color
+	var dimmedOut = document.querySelectorAll("#root path:not([fill="+CSS.escape(currColor)+"])");
+	dimmedOut.forEach((element) => {
+		element.setAttribute("opacity", .4);
+	});
+
+})
+.on("mouseout", function(d){
+	var currColor = color(d[0]);
+	var dimmedOut = document.querySelectorAll("#root path:not([fill="+CSS.escape(currColor)+"])");
+	dimmedOut.forEach((element) => {
+		element.setAttribute("opacity", 1);
+	});	
 });
 
 /*
@@ -122,7 +142,7 @@ function main(data){
 		countyIdToCountyInfo.set(element.fips,element);
 
 	});
-	console.dir(countyIdToCountyInfo.get(1001));
+	//console.dir(countyIdToCountyInfo.get(1001));
 	/*
 	for (let [key, value] of countyIdToCountyInfo.entries()) {
 		console.log(key + ' = ');
@@ -165,6 +185,11 @@ function main(data){
 		tooltipDiv.html(tooltipData)
 		.style("left", d3.event.pageX + "px")
 		.style("top", d3.event.pageY + "px");
+	})
+	.on("mouseout", function(){
+		var tooltipDiv = 
+		d3.select("#myTooltip")
+		.style("opacity", "0");
 	});
 	
 	
